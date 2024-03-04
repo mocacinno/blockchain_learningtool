@@ -71,6 +71,6 @@ func CreateInitialBlock(receiver shared.Identity) int{
         if err = csvwriter.Write(row); err != nil {
             log.Fatalln("error writing record to file", err)
         }
-	fmt.Println("output/block0001.csv written\n")
+	fmt.Println("output/block0001.csv written")
 	return 10000
 }
