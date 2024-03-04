@@ -16,7 +16,7 @@ block block0001.csv only creates one transaction out of thin air (in the bitcoin
 ### block layout
 
 line 0: the block header in format "<sha256 hash of previous block>,<block number>"
-line 1-unlimited: transactions in format "<blocknumber of input transaction>,<line inside blocknumber of incoming transaction>,<name of the sender>,<transmitted value>,<name of the receiver>,<public key of the receiver>,<pgp signature of tx minux the signature itself, using private key of sender>"
+line 1-unlimited: transactions in format "<keywords INPUTS>,<blocknumber of input transaction>,<line inside blocknumber of incoming transaction>,<input value><repeat two previous fields if necessary>,<keywords SENDER>,<name of the sender>,<keywords OUTPUTS><transmitted value>,<name of the receiver>,<public key of the receiver>,<repeat previous 3 fields if necessary>,<keyword SIGNATURE>,<pgp signature of tx minus the signature field itself, using private key of sender>"
 
-Just like in a "normal" blockchain, one unspent output needs to be fully spent, one unspent output CAN be spent in as many lines as you want. The difference is that this "learning tool" will show these splits as multiple transactions, the concept of vout is not implemented since it would make it to hard for new users to grasp what's going on
+Just like in a "normal" blockchain, many inputs and outputs are possible in one transaction, however, only Only one private key can be used to sign the transaction, so all spent unspent outputs had to be funding the same public key.
 
