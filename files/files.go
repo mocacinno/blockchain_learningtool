@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"golang.org/x/crypto/openpgp"
 	"golang.org/x/crypto/openpgp/armor"
+	"encoding/base64"
 )
 
 
@@ -20,27 +19,46 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 	}
 	defer file.Close()
 
-	// Write each identity to the file
 	for _, id := range identities {
-		fmt.Fprintf(file, "Name: %s\n", id.Name)
+		fmt.Fprintf(file, "\n\n\n\nName: %s\n", id.Name)
 
-		// Convert public key to ASCII-armored format
 		pubKeyBlock := &pem.Block{
 			Type:  "RSA PUBLIC KEY",
 			Bytes: x509.MarshalPKCS1PublicKey(id.PublicKey),
 		}
-		pubKeyArmored := armor.Encode(file, pubKeyBlock)
+		pubKeyArmored, err := armor.Encode(file, "PGP PUBLIC KEY BLOCK", nil) // Provide the correct armor type
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
 		defer pubKeyArmored.Close()
-		fmt.Fprintln(pubKeyArmored, "")
+		if err := pem.Encode(pubKeyArmored, pubKeyBlock); err != nil {
+			log.Fatal(err)
+		}
+
+		sshKey := fmt.Sprintf("ssh-rsa %s", base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(id.PublicKey)))
+		fmt.Fprintln(file, "SSH Public Key:")
+		fmt.Fprintln(file, sshKey)
+
+		// Convert public key to hexadecimal representation
+		hexKey := fmt.Sprintf("0x%s", base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(id.PublicKey)))
+		fmt.Fprintln(file, "Hexadecimal Public Key:")
+		fmt.Fprintln(file, hexKey)
 
 		// Convert private key to ASCII-armored format
 		privKeyBlock := &pem.Block{
 			Type:  "RSA PRIVATE KEY",
 			Bytes: x509.MarshalPKCS1PrivateKey(id.PrivateKey),
 		}
-		privKeyArmored := armor.Encode(file, privKeyBlock)
+		privKeyArmored, err := armor.Encode(file, "PGP PRIVATE KEY BLOCK", nil) // Provide the correct armor type
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
 		defer privKeyArmored.Close()
-		fmt.Fprintln(privKeyArmored, "")
+		if err := pem.Encode(privKeyArmored, privKeyBlock); err != nil {
+			log.Fatal(err)
+		}
 	}
+
+	fmt.Printf("Identities written to %s\n", fileName)
 
 }
