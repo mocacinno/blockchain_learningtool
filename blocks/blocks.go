@@ -10,6 +10,8 @@ import (
 	"crypto/sha256"
     "fmt"
     "io/ioutil"
+	"math/rand"
+	"time"
 )
 
 func CreateBlockHeader(blocknumber int) []string {
@@ -39,8 +41,91 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 	if err := csvwriter.Write(blockheader); err != nil {
 		log.Fatalln("error writing record to file", err)
 	}
+	//now, let's create some random transactions, add them to the block, and update the userStruct by using UpdateUserAddUnspentoutputs and UpdateUserRemoveUnspentoutputs
+	rand.Seed(time.Now().UnixNano())
+	randomNumber := rand.Intn(5) + 1
+	for transaction := 1; transaction <= randomNumber; transaction++ {
+		UpdateduserStruct, txline := CreateNewTransaction(userStruct)
+		userStruct = UpdateduserStruct
+		if err := csvwriter.Write(txline); err != nil {
+			log.Fatalln("error writing record to file", err)
+		}
+	} 
+
+	fmt.Printf("%s written\n", filename)
 	return userStruct
 }
+
+func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []string) {
+	var outputline []string
+	//first, find a user with unspent outputs
+	var nonEmptyEntries []shared.Identity
+	for _, id := range userStruct {
+		if len(id.Unspentoutputs) > 0 {
+			nonEmptyEntries = append(nonEmptyEntries, id)
+		}
+	}
+	rand.Seed(time.Now().UnixNano())
+	randomIndex := rand.Intn(len(nonEmptyEntries))
+	selectedEntry := nonEmptyEntries[randomIndex]
+
+	//pick one, two or more of said unspent outputs (always pick one for the demo now)
+	randomIndexUnspentOutput := rand.Intn(len(selectedEntry.Unspentoutputs))
+	
+	//remove unspent output(s) from said user
+	UpdateduserStruct, value, blocknumber, linenumber,sender := UpdateUserRemoveUnspentoutputs(randomIndex, randomIndexUnspentOutput, userStruct)
+	userStruct = UpdateduserStruct
+
+	//pick one or more receivers, split the value intput one or more parts (just transfer full value for the demo now)
+	randomIndex = rand.Intn(len(userStruct))
+	selectedEntry = userStruct[randomIndex]
+
+	//use UpdateUserAddUnspentoutputs to add unspent output to receivers
+	UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndex, blocknumber, linenumber, value , userStruct)
+	userStruct = UpdateduserStruct
+
+	//create transaction in block, put in []string and return
+	outputline = append(outputline, "INPUTS")
+	outputline = append(outputline, strconv.Itoa(blocknumber))
+	outputline = append(outputline, strconv.Itoa(linenumber))
+	outputline = append(outputline, strconv.Itoa(value))
+	outputline = append(outputline, "SENDER")
+	outputline = append(outputline, sender)
+	outputline = append(outputline, "OUTPUTS")
+	outputline = append(outputline, strconv.Itoa(value))
+	outputline = append(outputline, userStruct[randomIndex].Name)
+	outputline = append(outputline, "recvrpubkey-todo")
+	outputline = append(outputline, "SIGNATURE")
+	outputline = append(outputline, "signature-todo")
+	
+	return userStruct, outputline
+}
+
+
+func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, identities []shared.Identity) ([]shared.Identity, int, int, int, string) {
+	unspentoutputslice := identities[IdentityIndex].Unspentoutputs
+	value := unspentoutputslice[UnspentOutputIndex].Value
+	blocknumber := unspentoutputslice[UnspentOutputIndex].Blocknumber
+	linenumber := unspentoutputslice[UnspentOutputIndex].Linenumber
+	sender := identities[IdentityIndex].Name
+	if IdentityIndex < 0 || IdentityIndex >= len(identities) {
+		fmt.Println("Invalid IdentityIndex")
+		return identities,0,0,0,""
+	}
+	identity := identities[IdentityIndex]
+
+	if UnspentOutputIndex < 0 || UnspentOutputIndex >= len(identity.Unspentoutputs) {
+		fmt.Println("Invalid UnspentOutputIndex")
+		return identities,0,0,0,""
+	}
+
+	identity.Unspentoutputs = append(identity.Unspentoutputs[:UnspentOutputIndex], identity.Unspentoutputs[UnspentOutputIndex+1:]...)
+
+	identities[IdentityIndex] = identity
+
+	return identities, value, blocknumber, linenumber,sender
+}
+
 
 func UpdateUserAddUnspentoutputs (indexnumber int, blocknumber int, linenumber int, value int, identities []shared.Identity) []shared.Identity {
 	updateslice := identities[indexnumber]
