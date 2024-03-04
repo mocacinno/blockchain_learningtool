@@ -4,7 +4,6 @@ import(
 	"blockchain_learningtool/identity"
 	"blockchain_learningtool/shared"
 	"blockchain_learningtool/files"
-	"fmt"
 )
 
 func main() {
@@ -17,7 +16,6 @@ func main() {
 	}
 
 	files.WriteIdentitysToFile(userStruct)
-	fmt.Printf("%+v", userStruct)
-	
+		
 }
 	
