@@ -91,16 +91,39 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	fmt.Printf("after removing the unspent output, the struct now is %s\n",jstruct)
 
 	//pick one or more receivers, split the value intput one or more parts (just transfer full value for the demo now)
-	randomIndexReceiver := rand.Intn(len(userStruct))
-	selectedEntry = userStruct[randomIndexReceiver]
-	fmt.Printf("user %s with id %d was selected as a receiver\n", selectedEntry.Name, randomIndexReceiver)
+	numberofreceivers := rand.Intn(5) +1
+	reveivervalues := make([]int, numberofreceivers)
+	for i := 0; i < numberofreceivers; i++ {
+		reveivervalues[i] = rand.Intn(value / numberofreceivers) // Random value for each user
+	}
+	totalSum := 0
+	for _, v := range reveivervalues {
+		totalSum += v
+	}
+	reveivervalues[numberofreceivers-1] += value - totalSum
+	var outputs []string
+	for receivernumber := 0; receivernumber < numberofreceivers; receivernumber++ {
+		if reveivervalues[receivernumber] > 10 {
+			fmt.Printf("sending %d to user number %d\n", reveivervalues[receivernumber], receivernumber)
+		randomIndexReceiver := rand.Intn(len(userStruct))
+		selectedEntry = userStruct[randomIndexReceiver]
+		fmt.Printf("user %s with id %d was selected as a receiver\n", selectedEntry.Name, randomIndexReceiver)
 
-	//use UpdateUserAddUnspentoutputs to add unspent output to receivers
-	fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name,randomIndexReceiver, blocknumber, linenumber, value)
-	UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndexReceiver, blocknumber, linenumber, value , userStruct)
-	userStruct = UpdateduserStruct
-	jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
-	fmt.Printf("after adding the unspent output, the struct now is %s\n",jstruct)
+		//use UpdateUserAddUnspentoutputs to add unspent output to receivers
+		fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name,randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber])
+		UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber] , userStruct)
+		userStruct = UpdateduserStruct
+		jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
+		fmt.Printf("after adding the unspent output, the struct now is %s\n",jstruct)
+		outputs = append(outputs, strconv.Itoa(reveivervalues[receivernumber]))
+		outputs = append(outputs, selectedEntry.Name)
+		outputs = append(outputs, base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(selectedEntry.PublicKey)))
+		}
+		
+	}
+	
+
+	
 
 	//create transaction in block, put in []string and return
 	outputline = append(outputline, "INPUTS")
@@ -110,9 +133,7 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	outputline = append(outputline, "SENDER")
 	outputline = append(outputline, sender)
 	outputline = append(outputline, "OUTPUTS")
-	outputline = append(outputline, strconv.Itoa(value))
-	outputline = append(outputline, userStruct[randomIndexReceiver].Name)
-	outputline = append(outputline, "recvrpubkey-todo")
+	outputline = append(outputline, outputs...)
 	outputline = append(outputline, "SIGNATURE")
 	outputline = append(outputline, "signature-todo")
 
