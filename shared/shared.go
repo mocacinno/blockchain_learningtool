@@ -6,9 +6,10 @@ import (
 
 type Identity struct {
 	Name       string
-	PublicKey  *rsa.PublicKey
-	PrivateKey *rsa.PrivateKey
+	PublicKey  *rsa.PublicKey `json:"-"`
+	PrivateKey *rsa.PrivateKey `json:"-"`
 	Unspentoutputs []UnspentOutput
+	Id int
 }
 
 type UnspentOutput struct {

@@ -12,6 +12,7 @@ import (
     "io/ioutil"
 	"math/rand"
 	"time"
+	"encoding/json"
 )
 
 func CreateBlockHeader(blocknumber int) []string {
@@ -57,32 +58,49 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 }
 
 func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []string) {
+	jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
+	fmt.Printf("we start with userstruct %s\n",jstruct)
 	var outputline []string
 	//first, find a user with unspent outputs
 	var nonEmptyEntries []shared.Identity
-	for _, id := range userStruct {
+	for nonemptyIndex, id := range userStruct {
 		if len(id.Unspentoutputs) > 0 {
+			id.Id = nonemptyIndex
 			nonEmptyEntries = append(nonEmptyEntries, id)
 		}
 	}
+	jstruct, _ = json.MarshalIndent(nonEmptyEntries, "", "\t")
+	fmt.Printf("the non empty elements are %s\n",jstruct)
+	fmt.Printf("Number of non-empty entries: %d\n", len(nonEmptyEntries))
 	rand.Seed(time.Now().UnixNano())
-	randomIndex := rand.Intn(len(nonEmptyEntries))
-	selectedEntry := nonEmptyEntries[randomIndex]
+	randomIndexSelectedUser := rand.Intn(len(nonEmptyEntries))
+	selectedEntry := nonEmptyEntries[randomIndexSelectedUser]
+	jstruct, _ = json.MarshalIndent(selectedEntry, "", "\t")
+	fmt.Printf("the selected entry was %s\n",jstruct)
+	fmt.Printf("user %s with index %d was selected for spending an unspent output\n", selectedEntry.Name, selectedEntry.Id)
 
 	//pick one, two or more of said unspent outputs (always pick one for the demo now)
 	randomIndexUnspentOutput := rand.Intn(len(selectedEntry.Unspentoutputs))
+	fmt.Printf("unspent output index %d was selected from this user with id %d\n", randomIndexUnspentOutput,selectedEntry.Id)
 	
 	//remove unspent output(s) from said user
-	UpdateduserStruct, value, blocknumber, linenumber,sender := UpdateUserRemoveUnspentoutputs(randomIndex, randomIndexUnspentOutput, userStruct)
+	fmt.Println("going to remove this output now")
+	UpdateduserStruct, value, blocknumber, linenumber,sender := UpdateUserRemoveUnspentoutputs(selectedEntry.Id, randomIndexUnspentOutput, userStruct)
 	userStruct = UpdateduserStruct
+	jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
+	fmt.Printf("after removing the unspent output, the struct now is %s\n",jstruct)
 
 	//pick one or more receivers, split the value intput one or more parts (just transfer full value for the demo now)
-	randomIndex = rand.Intn(len(userStruct))
-	selectedEntry = userStruct[randomIndex]
+	randomIndexReceiver := rand.Intn(len(userStruct))
+	selectedEntry = userStruct[randomIndexReceiver]
+	fmt.Printf("user %s with id %d was selected as a receiver\n", selectedEntry.Name, randomIndexReceiver)
 
 	//use UpdateUserAddUnspentoutputs to add unspent output to receivers
-	UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndex, blocknumber, linenumber, value , userStruct)
+	fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name,randomIndexReceiver, blocknumber, linenumber, value)
+	UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndexReceiver, blocknumber, linenumber, value , userStruct)
 	userStruct = UpdateduserStruct
+	jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
+	fmt.Printf("after adding the unspent output, the struct now is %s\n",jstruct)
 
 	//create transaction in block, put in []string and return
 	outputline = append(outputline, "INPUTS")
@@ -93,10 +111,12 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	outputline = append(outputline, sender)
 	outputline = append(outputline, "OUTPUTS")
 	outputline = append(outputline, strconv.Itoa(value))
-	outputline = append(outputline, userStruct[randomIndex].Name)
+	outputline = append(outputline, userStruct[randomIndexReceiver].Name)
 	outputline = append(outputline, "recvrpubkey-todo")
 	outputline = append(outputline, "SIGNATURE")
 	outputline = append(outputline, "signature-todo")
+
+	fmt.Printf("as output, created tx csv line: %+v\n", outputline)
 	
 	return userStruct, outputline
 }
