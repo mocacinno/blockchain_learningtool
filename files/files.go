@@ -12,38 +12,25 @@ import (
 )
 
 func CreateDirs() error {
-	directoryPath := "output/keys"
-	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
-		err := os.MkdirAll(directoryPath, 0755)
-		if err != nil {
-			return errors.New(fmt.Sprintf("Error creating directory: %s", err))
-		}
-		if shared.Myparameters.Verbose { 
-			fmt.Println("Directory created successfully!")
-		}
-		
-	} else {
-		if shared.Myparameters.Verbose { 
-			fmt.Println("Directory already exists.")
-		}
-		
-	}
-	directoryPath = "output/blocks"
-	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
-		err := os.MkdirAll(directoryPath, 0755)
-		if err != nil {
-			fmt.Println("Error creating directory:", err)
-			return errors.New(fmt.Sprintf("Error creating directory: %s", err)) 
-		}
-		if shared.Myparameters.Verbose { 
-			fmt.Println("Directory created successfully!")
-		}
-		
-	} else {
-		if shared.Myparameters.Verbose { 
-			fmt.Println("Directory already exists.")
+	toCreateDirs := []string{ "output/keys", "output/blocks", "output/walktrough"}
+	for _, directoryPath := range(toCreateDirs) {
+		if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
+			err := os.MkdirAll(directoryPath, 0755)
+			if err != nil {
+				return errors.New(fmt.Sprintf("Error creating directory: %s", err))
+			}
+			if shared.Myparameters.Verbose { 
+				fmt.Printf("Directory %s created successfully!\n", directoryPath)
+			}
+			
+		} else {
+			if shared.Myparameters.Verbose { 
+				fmt.Printf("Directory %s already exists.\n", directoryPath)
+			}
+			
 		}
 	}
+
 	return nil
 }
 
@@ -75,12 +62,10 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 		fmt.Fprintln(file, "SSH Public Key:")
 		fmt.Fprintln(file, sshKey)
 
-		// Convert public key to hexadecimal representation
 		hexKey := fmt.Sprintf("0x%s", base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(id.PublicKey)))
 		fmt.Fprintln(file, "Hexadecimal Public Key:")
 		fmt.Fprintln(file, hexKey)
 
-		// Convert private key to ASCII-armored format
 		privKeyBlock := &pem.Block{
 			Type:  "RSA PRIVATE KEY",
 			Bytes: x509.MarshalPKCS1PrivateKey(id.PrivateKey),
