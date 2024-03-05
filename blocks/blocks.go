@@ -1,6 +1,7 @@
 package blocks
 import (
 	"blockchain_learningtool/shared"
+	"blockchain_learningtool/signing"
     "encoding/csv"
     "log"
     "os"
@@ -13,6 +14,7 @@ import (
 	"math/rand"
 	"time"
 	"encoding/json"
+	"strings"
 )
 
 func CreateBlockHeader(blocknumber int) []string {
@@ -135,10 +137,15 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	outputline = append(outputline, "OUTPUTS")
 	outputline = append(outputline, outputs...)
 	outputline = append(outputline, "SIGNATURE")
-	outputline = append(outputline, "signature-todo")
+	//outputline = append(outputline, "signature-todo")
+	tosign := strings.Join(outputline, ",")
+	signature, err := signing.SignMessage(selectedEntry.PrivateKey, tosign)
+	if err != nil {
+        fmt.Println("Error signing message:", err)
+    }
 
 	fmt.Printf("as output, created tx csv line: %+v\n", outputline)
-	
+	outputline = append(outputline, signature)
 	return userStruct, outputline
 }
 
