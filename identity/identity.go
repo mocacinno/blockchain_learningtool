@@ -1,6 +1,6 @@
 package identity
 
-import(
+import (
 	"blockchain_learningtool/shared"
 	"crypto/rand"
 	"crypto/rsa"

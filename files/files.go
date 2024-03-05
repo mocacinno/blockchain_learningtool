@@ -1,33 +1,34 @@
 package files
+
 import (
 	"blockchain_learningtool/shared"
+	"crypto/x509"
+	"encoding/base64"
+	"encoding/pem"
+	"errors"
 	"fmt"
+	"golang.org/x/crypto/openpgp/armor"
 	"log"
 	"os"
-	"crypto/x509"
-	"encoding/pem"
-	"golang.org/x/crypto/openpgp/armor"
-	"encoding/base64"
-	"errors"
 )
 
 func CreateDirs() error {
-	toCreateDirs := []string{ "output/keys", "output/blocks", "output/walktrough"}
-	for _, directoryPath := range(toCreateDirs) {
+	toCreateDirs := []string{"output/keys", "output/blocks", "output/walktrough"}
+	for _, directoryPath := range toCreateDirs {
 		if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
 			err := os.MkdirAll(directoryPath, 0755)
 			if err != nil {
 				return errors.New(fmt.Sprintf("Error creating directory: %s", err))
 			}
-			if shared.Myparameters.Verbose { 
+			if shared.Myparameters.Verbose {
 				fmt.Printf("Directory %s created successfully!\n", directoryPath)
 			}
-			
+
 		} else {
-			if shared.Myparameters.Verbose { 
+			if shared.Myparameters.Verbose {
 				fmt.Printf("Directory %s already exists.\n", directoryPath)
 			}
-			
+
 		}
 	}
 
@@ -79,9 +80,8 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 			log.Fatal(err)
 		}
 	}
-	if shared.Myparameters.Verbose { 
+	if shared.Myparameters.Verbose {
 		fmt.Printf("Identities written to %s\n", fileName)
 	}
-	
 
 }

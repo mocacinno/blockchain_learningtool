@@ -1,11 +1,11 @@
 package flags
 
 import (
-	"flag"
 	"blockchain_learningtool/shared"
+	"flag"
 )
 
-func ParseFlags()  {
+func ParseFlags() {
 	var params shared.Parameters
 
 	flag.BoolVar(&params.Verbose, "verbose", false, "be verbose")
