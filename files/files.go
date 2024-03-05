@@ -18,9 +18,15 @@ func CreateDirs() error {
 		if err != nil {
 			return errors.New(fmt.Sprintf("Error creating directory: %s", err))
 		}
-		fmt.Println("Directory created successfully!")
+		if shared.Myparameters.Verbose { 
+			fmt.Println("Directory created successfully!")
+		}
+		
 	} else {
-		fmt.Println("Directory already exists.")
+		if shared.Myparameters.Verbose { 
+			fmt.Println("Directory already exists.")
+		}
+		
 	}
 	directoryPath = "output/blocks"
 	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
@@ -29,9 +35,14 @@ func CreateDirs() error {
 			fmt.Println("Error creating directory:", err)
 			return errors.New(fmt.Sprintf("Error creating directory: %s", err)) 
 		}
-		fmt.Println("Directory created successfully!")
+		if shared.Myparameters.Verbose { 
+			fmt.Println("Directory created successfully!")
+		}
+		
 	} else {
-		fmt.Println("Directory already exists.")
+		if shared.Myparameters.Verbose { 
+			fmt.Println("Directory already exists.")
+		}
 	}
 	return nil
 }
@@ -83,7 +94,9 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 			log.Fatal(err)
 		}
 	}
-
-	fmt.Printf("Identities written to %s\n", fileName)
+	if shared.Myparameters.Verbose { 
+		fmt.Printf("Identities written to %s\n", fileName)
+	}
+	
 
 }

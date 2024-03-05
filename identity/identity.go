@@ -4,8 +4,6 @@ import(
 	"blockchain_learningtool/shared"
 	"crypto/rand"
 	"crypto/rsa"
-	//"crypto/sha256"
-	//"encoding/hex"
 )
 
 func GenerateIdentity(name string) *shared.Identity {

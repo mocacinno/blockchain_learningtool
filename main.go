@@ -7,12 +7,13 @@ import(
 	"blockchain_learningtool/blocks"
 	"blockchain_learningtool/flags"
 	"fmt"
+	"strings"
 )
 
 func main() {
+	flags.ParseFlags()
 	files.CreateDirs()
-	myparameters := flags.ParseFlags()
-	myUsers := []string{"mocacinno", "bob", "alice", "james", "laura", "david", "emily", "alex", "sarah", "michael"}
+	myUsers := strings.Split(shared.Myparameters.Namelist, ",")
 	var userStruct []shared.Identity
 	for _, currentuser := range(myUsers) {
 		newidentityPtr := identity.GenerateIdentity(currentuser)
@@ -21,11 +22,14 @@ func main() {
 	}
 
 	files.WriteIdentitysToFile(userStruct)
-	unspentoutputsvalue := blocks.CreateInitialBlock(userStruct[0],myparameters.InputValue)
+	unspentoutputsvalue := blocks.CreateInitialBlock(userStruct[0],shared.Myparameters.InputValue)
 	userStruct = blocks.UpdateUserAddUnspentoutputs(0, 0,1,unspentoutputsvalue, userStruct)
-	for blocknumber := 2; blocknumber <= 10; blocknumber++ {
+	for blocknumber := 2; blocknumber <= shared.Myparameters.NumberOfBlocks; blocknumber++ {
 		userStruct = blocks.CreateNewBlock(blocknumber, userStruct)
 	} 
-	fmt.Printf("%+v", userStruct)
+	if shared.Myparameters.Verbose {
+		fmt.Printf("%+v", userStruct)
+	}
+	
 }
 	

@@ -8,7 +8,10 @@ type Parameters struct {
 	Verbose bool
 	Namelist string
 	InputValue int
+	NumberOfBlocks int
 }
+
+var Myparameters Parameters
 
 type Identity struct {
 	Name       string

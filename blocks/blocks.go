@@ -54,14 +54,19 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 			log.Fatalln("error writing record to file", err)
 		}
 	} 
-
-	fmt.Printf("%s written\n", filename)
+	if shared.Myparameters.Verbose { 
+		fmt.Printf("%s written\n", filename)
+	}
+	
 	return userStruct
 }
 
 func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []string) {
-	jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
-	fmt.Printf("we start with userstruct %s\n",jstruct)
+	if shared.Myparameters.Verbose { 
+		jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
+		fmt.Printf("we start with userstruct %s\n",jstruct)
+	}
+	
 	var outputline []string
 	//first, find a user with unspent outputs
 	var nonEmptyEntries []shared.Identity
@@ -71,26 +76,39 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 			nonEmptyEntries = append(nonEmptyEntries, id)
 		}
 	}
-	jstruct, _ = json.MarshalIndent(nonEmptyEntries, "", "\t")
+	if shared.Myparameters.Verbose { 
+		jstruct, _ := json.MarshalIndent(nonEmptyEntries, "", "\t")
 	fmt.Printf("the non empty elements are %s\n",jstruct)
 	fmt.Printf("Number of non-empty entries: %d\n", len(nonEmptyEntries))
+	}
+	
 	rand.Seed(time.Now().UnixNano())
 	randomIndexSelectedUser := rand.Intn(len(nonEmptyEntries))
 	selectedEntry := nonEmptyEntries[randomIndexSelectedUser]
-	jstruct, _ = json.MarshalIndent(selectedEntry, "", "\t")
+	if shared.Myparameters.Verbose { 
+		jstruct, _ := json.MarshalIndent(selectedEntry, "", "\t")
 	fmt.Printf("the selected entry was %s\n",jstruct)
 	fmt.Printf("user %s with index %d was selected for spending an unspent output\n", selectedEntry.Name, selectedEntry.Id)
+	}
+	
 
 	//pick one, two or more of said unspent outputs (always pick one for the demo now)
 	randomIndexUnspentOutput := rand.Intn(len(selectedEntry.Unspentoutputs))
-	fmt.Printf("unspent output index %d was selected from this user with id %d\n", randomIndexUnspentOutput,selectedEntry.Id)
+	if shared.Myparameters.Verbose { fmt.Printf("unspent output index %d was selected from this user with id %d\n", randomIndexUnspentOutput,selectedEntry.Id) }
+	
 	
 	//remove unspent output(s) from said user
-	fmt.Println("going to remove this output now")
+	if shared.Myparameters.Verbose {
+		fmt.Println("going to remove this output now")
+	 }
+	
 	UpdateduserStruct, value, blocknumber, linenumber,sender := UpdateUserRemoveUnspentoutputs(selectedEntry.Id, randomIndexUnspentOutput, userStruct)
 	userStruct = UpdateduserStruct
-	jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
+	if shared.Myparameters.Verbose {
+		jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
 	fmt.Printf("after removing the unspent output, the struct now is %s\n",jstruct)
+	 }
+	
 
 	//pick one or more receivers, split the value intput one or more parts (just transfer full value for the demo now)
 	numberofreceivers := rand.Intn(5) +1
@@ -106,17 +124,29 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	var outputs []string
 	for receivernumber := 0; receivernumber < numberofreceivers; receivernumber++ {
 		if reveivervalues[receivernumber] > 10 {
-			fmt.Printf("sending %d to user number %d\n", reveivervalues[receivernumber], receivernumber)
+			if shared.Myparameters.Verbose {
+				fmt.Printf("sending %d to user number %d\n", reveivervalues[receivernumber], receivernumber)
+			 }
+			
 		randomIndexReceiver := rand.Intn(len(userStruct))
 		selectedEntry = userStruct[randomIndexReceiver]
-		fmt.Printf("user %s with id %d was selected as a receiver\n", selectedEntry.Name, randomIndexReceiver)
+		if shared.Myparameters.Verbose {
+			fmt.Printf("user %s with id %d was selected as a receiver\n", selectedEntry.Name, randomIndexReceiver)
+		 }
+		
 
 		//use UpdateUserAddUnspentoutputs to add unspent output to receivers
-		fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name,randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber])
+		if shared.Myparameters.Verbose {
+			fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name,randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber])
+		
+		 }
 		UpdateduserStruct = UpdateUserAddUnspentoutputs (randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber] , userStruct)
 		userStruct = UpdateduserStruct
-		jstruct, _ = json.MarshalIndent(userStruct, "", "\t")
+		if shared.Myparameters.Verbose {
+			jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
 		fmt.Printf("after adding the unspent output, the struct now is %s\n",jstruct)
+		 }
+		
 		outputs = append(outputs, strconv.Itoa(reveivervalues[receivernumber]))
 		outputs = append(outputs, selectedEntry.Name)
 		outputs = append(outputs, base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(selectedEntry.PublicKey)))
@@ -143,8 +173,10 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	if err != nil {
         fmt.Println("Error signing message:", err)
     }
-
-	fmt.Printf("as output, created tx csv line: %+v\n", outputline)
+	if shared.Myparameters.Verbose {
+		fmt.Printf("as output, created tx csv line: %+v\n", outputline)
+	 }
+	
 	outputline = append(outputline, signature)
 	return userStruct, outputline
 }
@@ -204,6 +236,9 @@ func CreateInitialBlock(receiver shared.Identity, StartValue int) int{
         if err = csvwriter.Write(row); err != nil {
             log.Fatalln("error writing record to file", err)
         }
-	fmt.Println("output/blocks/block0001.csv written")
+		if shared.Myparameters.Verbose { 
+			fmt.Println("output/blocks/block0001.csv written")
+		}
+	
 	return StartValue
 }
