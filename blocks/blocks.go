@@ -19,7 +19,7 @@ import (
 
 func CreateBlockHeader(blocknumber int) []string {
 	previousblocknumber := blocknumber - 1
-	previousblockfilename := fmt.Sprintf("output/block%04d.csv", previousblocknumber)
+	previousblockfilename := fmt.Sprintf("output/blocks/block%04d.csv", previousblocknumber)
 	fileData, err := ioutil.ReadFile(previousblockfilename)
     if err != nil {
         log.Fatal(err)
@@ -32,7 +32,7 @@ func CreateBlockHeader(blocknumber int) []string {
 
 func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Identity {
 	//first, the block header... 
-	filename := fmt.Sprintf("output/block%04d.csv", blocknumber)
+	filename := fmt.Sprintf("output/blocks/block%04d.csv", blocknumber)
 	blockheader := CreateBlockHeader(blocknumber)
 	csvFile, err := os.Create(filename)
 	if err != nil {
@@ -187,8 +187,8 @@ func UpdateUserAddUnspentoutputs (indexnumber int, blocknumber int, linenumber i
 	identities[indexnumber] = updateslice
 	return identities
 }
-func CreateInitialBlock(receiver shared.Identity) int{
-	csvFile, err := os.Create("output/block0001.csv")
+func CreateInitialBlock(receiver shared.Identity, StartValue int) int{
+	csvFile, err := os.Create("output/blocks/block0001.csv")
 	if err != nil {
 		log.Fatalf("failed creating file: %s", err)
 	}
@@ -200,10 +200,10 @@ func CreateInitialBlock(receiver shared.Identity) int{
         if err := csvwriter.Write(row); err != nil {
             log.Fatalln("error writing record to file", err)
         }
-	row = []string{"INPUTS", "0","0","10000","SENDER", "initialise", "OUTPUTS", "10000",receiver.Name,base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(receiver.PublicKey)), "SIGNATURE","initialise"}
+	row = []string{"INPUTS", "0","0",strconv.Itoa(StartValue),"SENDER", "initialise", "OUTPUTS", strconv.Itoa(StartValue),receiver.Name,base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(receiver.PublicKey)), "SIGNATURE","initialise"}
         if err = csvwriter.Write(row); err != nil {
             log.Fatalln("error writing record to file", err)
         }
-	fmt.Println("output/block0001.csv written")
-	return 10000
+	fmt.Println("output/blocks/block0001.csv written")
+	return StartValue
 }

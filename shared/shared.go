@@ -4,6 +4,12 @@ import (
 	"crypto/rsa"
 )
 
+type Parameters struct {
+	Verbose bool
+	Namelist string
+	InputValue int
+}
+
 type Identity struct {
 	Name       string
 	PublicKey  *rsa.PublicKey `json:"-"`

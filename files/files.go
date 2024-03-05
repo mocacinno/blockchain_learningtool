@@ -8,8 +8,33 @@ import (
 	"encoding/pem"
 	"golang.org/x/crypto/openpgp/armor"
 	"encoding/base64"
+	"errors"
 )
 
+func CreateDirs() error {
+	directoryPath := "output/keys"
+	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
+		err := os.MkdirAll(directoryPath, 0755)
+		if err != nil {
+			return errors.New(fmt.Sprintf("Error creating directory: %s", err))
+		}
+		fmt.Println("Directory created successfully!")
+	} else {
+		fmt.Println("Directory already exists.")
+	}
+	directoryPath = "output/blocks"
+	if _, err := os.Stat(directoryPath); os.IsNotExist(err) {
+		err := os.MkdirAll(directoryPath, 0755)
+		if err != nil {
+			fmt.Println("Error creating directory:", err)
+			return errors.New(fmt.Sprintf("Error creating directory: %s", err)) 
+		}
+		fmt.Println("Directory created successfully!")
+	} else {
+		fmt.Println("Directory already exists.")
+	}
+	return nil
+}
 
 func WriteIdentitysToFile(identities []shared.Identity) {
 	fileName := "output/identities.txt"
