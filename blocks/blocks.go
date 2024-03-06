@@ -48,8 +48,10 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 	//now, let's create some random transactions, add them to the block, and update the userStruct by using UpdateUserAddUnspentoutputs and UpdateUserRemoveUnspentoutputs
 	rand.Seed(time.Now().UnixNano())
 	randomNumber := rand.Intn(5) + 1
+	lijnnumber := 1
 	for transaction := 1; transaction <= randomNumber; transaction++ {
-		UpdateduserStruct, txline := CreateNewTransaction(userStruct)
+		UpdateduserStruct, txline := CreateNewTransaction(userStruct,blocknumber,lijnnumber)
+		lijnnumber = lijnnumber +1
 		userStruct = UpdateduserStruct
 		if err := csvwriter.Write(txline); err != nil {
 			log.Fatalln("error writing record to file", err)
@@ -62,7 +64,7 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 	return userStruct
 }
 
-func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []string) {
+func CreateNewTransaction(userStruct []shared.Identity, newblock_number int, newblock_line int) ([]shared.Identity, []string) {
 	if shared.Myparameters.Verbose {
 		jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
 		fmt.Printf("we start with userstruct %s\n", jstruct)
@@ -86,6 +88,7 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	rand.Seed(time.Now().UnixNano())
 	randomIndexSelectedUser := rand.Intn(len(nonEmptyEntries))
 	selectedEntry := nonEmptyEntries[randomIndexSelectedUser]
+	senderprivkey := selectedEntry.PrivateKey
 	if shared.Myparameters.Verbose {
 		jstruct, _ := json.MarshalIndent(selectedEntry, "", "\t")
 		fmt.Printf("the selected entry was %s\n", jstruct)
@@ -104,6 +107,7 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	}
 
 	UpdateduserStruct, value, blocknumber, linenumber, sender := UpdateUserRemoveUnspentoutputs(selectedEntry.Id, randomIndexUnspentOutput, userStruct)
+	fmt.Printf("going to use unspent output of block %d, line %d with value %d from sender %s\n\n", blocknumber, linenumber, value, sender)
 	userStruct = UpdateduserStruct
 	if shared.Myparameters.Verbose {
 		jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
@@ -139,7 +143,7 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 				fmt.Printf("adding unspent output to user %s (index %d), coming from block number %d, line number %d value %d\n", selectedEntry.Name, randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber])
 
 			}
-			UpdateduserStruct = UpdateUserAddUnspentoutputs(randomIndexReceiver, blocknumber, linenumber, reveivervalues[receivernumber], userStruct)
+			UpdateduserStruct = UpdateUserAddUnspentoutputs(randomIndexReceiver, newblock_number, newblock_line, reveivervalues[receivernumber], userStruct)
 			userStruct = UpdateduserStruct
 			if shared.Myparameters.Verbose {
 				jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
@@ -165,14 +169,16 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	outputline = append(outputline, "SIGNATURE")
 	//outputline = append(outputline, "signature-todo")
 	tosign := strings.Join(outputline, ",")
-	signature, err := signing.SignMessage(selectedEntry.PrivateKey, tosign)
+	signature, err := signing.SignMessage(senderprivkey, tosign)
 	if err != nil {
 		fmt.Println("Error signing message:", err)
 	}
 	if shared.Myparameters.Verbose {
 		fmt.Printf("as output, created tx csv line: %+v\n", outputline)
 	}
-	fmt.Printf("debug: tosign: '%s', signer: '%s', signature: '%s'\n", tosign, sender, signature)
+	if shared.Myparameters.Debug || shared.Myparameters.Verbose {
+	fmt.Printf("debug: tosign: '%s'\n, signer: '%s'\n, signature: '%s'\n\n\n", tosign, sender, signature)
+	}
 	outputline = append(outputline, signature)
 	return userStruct, outputline
 }
@@ -183,6 +189,10 @@ func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, i
 	blocknumber := unspentoutputslice[UnspentOutputIndex].Blocknumber
 	linenumber := unspentoutputslice[UnspentOutputIndex].Linenumber
 	sender := identities[IdentityIndex].Name
+	/*
+	jstruct, _ := json.MarshalIndent(identities[IdentityIndex], "", "\t")
+		fmt.Printf("the unspent outputslice %s\n", jstruct)
+	*/
 	if IdentityIndex < 0 || IdentityIndex >= len(identities) {
 		fmt.Println("Invalid IdentityIndex")
 		return identities, 0, 0, 0, ""
@@ -202,6 +212,7 @@ func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, i
 }
 
 func UpdateUserAddUnspentoutputs(indexnumber int, blocknumber int, linenumber int, value int, identities []shared.Identity) []shared.Identity {
+	fmt.Printf("adding new unspent output to user with index %d, coming from blocknumber %d, linunumber %d and value %d\n", indexnumber, blocknumber, linenumber, value)
 	updateslice := identities[indexnumber]
 	Unspentoutputslice := updateslice.Unspentoutputs
 	var newUnspentOutput shared.UnspentOutput

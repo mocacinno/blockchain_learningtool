@@ -6,8 +6,10 @@ import (
 	"crypto/rsa"
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 )
 
+/*
 func SignMessage(privateKey *rsa.PrivateKey, message string) (string, error) {
 	hashed := sha256.Sum256([]byte(message))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
@@ -15,6 +17,16 @@ func SignMessage(privateKey *rsa.PrivateKey, message string) (string, error) {
 		return "", err
 	}
 	return base64.StdEncoding.EncodeToString(signature), nil
+}
+*/
+
+func SignMessage(privateKey *rsa.PrivateKey, message string) (string, error) {
+    hashed := sha256.Sum256([]byte(message))
+    signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
+    if err != nil {
+        return "", err
+    }
+    return fmt.Sprintf("%x", signature), nil
 }
 
 func ValidateSignature(publicKey *rsa.PublicKey, message, signature string) bool {

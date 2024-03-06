@@ -9,10 +9,11 @@ type Parameters struct {
 	Namelist       string
 	InputValue     int
 	NumberOfBlocks int
+	Debug 			bool
 }
 
 var Myparameters Parameters
-/*
+
 type Identity struct {
 	Name           string
 	PublicKey      *rsa.PublicKey  `json:"-"`
@@ -20,7 +21,7 @@ type Identity struct {
 	Unspentoutputs []UnspentOutput
 	Id             int
 }
-*/
+/*
 type Identity struct {
 	Name           string
 	PublicKey      *rsa.PublicKey  
@@ -28,7 +29,7 @@ type Identity struct {
 	Unspentoutputs []UnspentOutput
 	Id             int
 }
-
+*/
 type UnspentOutput struct {
 	Blocknumber int
 	Linenumber  int
