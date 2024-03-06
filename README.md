@@ -1,5 +1,11 @@
 # Blockchain Learningtool by Mocacinno
 
+## tipjar
+
+bc1qhqgjj87wymwk7a6rj92tp3cxt3crt00a9qg6pa
+
+i basically accept any kind of tips, eventough i only posted a bitcoin address... If you want to support this project but want to tip some altcoin, or using a L2 sollution: just contact me on bitcointalk, or open an issue on this repo
+
 ## intro
 
 This tool was written to give some ELI12 insight in what a blockchain is, what a transaction is, what a wallet is,...
@@ -15,7 +21,7 @@ block block0001.csv (the genesis block) only creates one transaction out of thin
 
 ### block layout
 
-line 0: the block header in format "<sha256 hash of previous block>,<block number>"
+line 0: the block header in format "<sha256 hash of previous block>,<block number>"  
 line 1-unlimited: transactions in format "<keywords INPUTS>,<blocknumber of input transaction>,<line inside blocknumber of incoming transaction>,<input value><repeat two previous fields if necessary>,<keywords SENDER>,<name of the sender>,<keywords OUTPUTS><transmitted value>,<name of the receiver>,<public key of the receiver>,<repeat previous 3 fields if necessary>,<keyword SIGNATURE>,<pgp signature of tx minus the signature field itself, using private key of sender>"
 
 Just like in a "normal" blockchain, many inputs and outputs are possible in one transaction, however, only Only one private key can be used to sign the transaction, so all spent unspent outputs had to be funding the same public key.
