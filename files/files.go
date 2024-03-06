@@ -44,6 +44,21 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 	defer file.Close()
 
 	for _, id := range identities {
+		privkeyfileName := "output/keys/" + id.Name 
+		privkeyfile, err := os.Create(privkeyfileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer privkeyfile.Close()
+		pubkeyfileName := "output/keys/" + id.Name + ".pub"
+		pubkeyfile, err := os.Create(pubkeyfileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer pubkeyfile.Close()
+
+
+
 		fmt.Fprintf(file, "\n\n\n\nName: %s\n", id.Name)
 
 		pubKeyBlock := &pem.Block{
@@ -59,6 +74,16 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 			log.Fatal(err)
 		}
 
+		pubKeyArmored, err = armor.Encode(pubkeyfile, "PGP PUBLIC KEY BLOCK", nil) // Provide the correct armor type
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
+		defer pubKeyArmored.Close()
+		if err := pem.Encode(pubKeyArmored, pubKeyBlock); err != nil {
+			log.Fatal(err)
+		}
+
+
 		sshKey := fmt.Sprintf("ssh-rsa %s", base64.StdEncoding.EncodeToString(x509.MarshalPKCS1PublicKey(id.PublicKey)))
 		fmt.Fprintln(file, "SSH Public Key:")
 		fmt.Fprintln(file, sshKey)
@@ -72,6 +97,15 @@ func WriteIdentitysToFile(identities []shared.Identity) {
 			Bytes: x509.MarshalPKCS1PrivateKey(id.PrivateKey),
 		}
 		privKeyArmored, err := armor.Encode(file, "PGP PRIVATE KEY BLOCK", nil) // Provide the correct armor type
+		if err != nil {
+			fmt.Printf("%s\n", err)
+		}
+		defer privKeyArmored.Close()
+		if err := pem.Encode(privKeyArmored, privKeyBlock); err != nil {
+			log.Fatal(err)
+		}
+
+		privKeyArmored, err = armor.Encode(privkeyfile, "PGP PRIVATE KEY BLOCK", nil) // Provide the correct armor type
 		if err != nil {
 			fmt.Printf("%s\n", err)
 		}
