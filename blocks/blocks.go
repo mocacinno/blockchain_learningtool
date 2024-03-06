@@ -107,7 +107,9 @@ func CreateNewTransaction(userStruct []shared.Identity, newblock_number int, new
 	}
 
 	UpdateduserStruct, value, blocknumber, linenumber, sender := UpdateUserRemoveUnspentoutputs(selectedEntry.Id, randomIndexUnspentOutput, userStruct)
+	if shared.Myparameters.Debug {
 	fmt.Printf("going to use unspent output of block %d, line %d with value %d from sender %s\n\n", blocknumber, linenumber, value, sender)
+	}
 	userStruct = UpdateduserStruct
 	if shared.Myparameters.Verbose {
 		jstruct, _ := json.MarshalIndent(userStruct, "", "\t")
@@ -212,7 +214,9 @@ func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, i
 }
 
 func UpdateUserAddUnspentoutputs(indexnumber int, blocknumber int, linenumber int, value int, identities []shared.Identity) []shared.Identity {
+	if shared.Myparameters.Debug {
 	fmt.Printf("adding new unspent output to user with index %d, coming from blocknumber %d, linunumber %d and value %d\n", indexnumber, blocknumber, linenumber, value)
+	}
 	updateslice := identities[indexnumber]
 	Unspentoutputslice := updateslice.Unspentoutputs
 	var newUnspentOutput shared.UnspentOutput
