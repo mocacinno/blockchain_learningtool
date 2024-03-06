@@ -12,11 +12,19 @@ type Parameters struct {
 }
 
 var Myparameters Parameters
-
+/*
 type Identity struct {
 	Name           string
 	PublicKey      *rsa.PublicKey  `json:"-"`
 	PrivateKey     *rsa.PrivateKey `json:"-"`
+	Unspentoutputs []UnspentOutput
+	Id             int
+}
+*/
+type Identity struct {
+	Name           string
+	PublicKey      *rsa.PublicKey  
+	PrivateKey     *rsa.PrivateKey
 	Unspentoutputs []UnspentOutput
 	Id             int
 }

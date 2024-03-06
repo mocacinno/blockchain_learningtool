@@ -17,14 +17,11 @@ func main() {
 	myUsers := strings.Split(shared.Myparameters.Namelist, ",")
 	var userStruct []shared.Identity
 	for _, currentuser := range myUsers {
-		newidentityPtr := identity.GenerateIdentity(currentuser)
+		newidentityPtr, _ := identity.GenerateIdentity(currentuser)
 		newidentity := *newidentityPtr
 		userStruct = append(userStruct, newidentity)
 	}
 
-	//files.WriteIdentitysToFile(userStruct)
-	outputDir := "output/"
-	files.WriteIdentitysToFile(userStruct, outputDir)
 
 	unspentoutputsvalue := blocks.CreateInitialBlock(userStruct[0], shared.Myparameters.InputValue)
 	userStruct = blocks.UpdateUserAddUnspentoutputs(0, 0, 1, unspentoutputsvalue, userStruct)

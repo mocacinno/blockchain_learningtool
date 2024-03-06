@@ -172,7 +172,7 @@ func CreateNewTransaction(userStruct []shared.Identity) ([]shared.Identity, []st
 	if shared.Myparameters.Verbose {
 		fmt.Printf("as output, created tx csv line: %+v\n", outputline)
 	}
-
+	fmt.Printf("debug: tosign: '%s', signer: '%s', signature: '%s'\n", tosign, sender, signature)
 	outputline = append(outputline, signature)
 	return userStruct, outputline
 }

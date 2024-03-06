@@ -20,3 +20,11 @@ line 1-unlimited: transactions in format "<keywords INPUTS>,<blocknumber of inpu
 
 Just like in a "normal" blockchain, many inputs and outputs are possible in one transaction, however, only Only one private key can be used to sign the transaction, so all spent unspent outputs had to be funding the same public key.
 
+### verification
+
+* open a block, pick a line, look at the sender (in my case, it was james)
+* go to the output/keys folder, create two new files: signature.txt and message.txt
+* the signature is the part AFTER the last comma of the line picked in the first verification step... copy it and paste it in signature.txt
+* the message is is the part BEFORE the last comma of the line picked in the first verification step... copy it and paste it in message.txt
+* convert the public key of james: `openssl rsa -RSAPublicKey_in -in james_public.pem -pubout -outform PEM -out james_public_spki.pem`
+* verify the if the signature is valid for the message using the converted public key: `openssl dgst -sha256 -verify james_public_spki.pem -signature signature.txt message.txt`
