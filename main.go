@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-
 func main() {
 	flags.ParseFlags()
 	files.CreateDirs()
@@ -21,7 +20,6 @@ func main() {
 		newidentity := *newidentityPtr
 		userStruct = append(userStruct, newidentity)
 	}
-
 
 	unspentoutputsvalue := blocks.CreateInitialBlock(userStruct[0], shared.Myparameters.InputValue)
 	userStruct = blocks.UpdateUserAddUnspentoutputs(0, 0, 1, unspentoutputsvalue, userStruct)

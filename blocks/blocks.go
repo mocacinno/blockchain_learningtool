@@ -50,8 +50,8 @@ func CreateNewBlock(blocknumber int, userStruct []shared.Identity) []shared.Iden
 	randomNumber := rand.Intn(5) + 1
 	lijnnumber := 1
 	for transaction := 1; transaction <= randomNumber; transaction++ {
-		UpdateduserStruct, txline := CreateNewTransaction(userStruct,blocknumber,lijnnumber)
-		lijnnumber = lijnnumber +1
+		UpdateduserStruct, txline := CreateNewTransaction(userStruct, blocknumber, lijnnumber)
+		lijnnumber = lijnnumber + 1
 		userStruct = UpdateduserStruct
 		if err := csvwriter.Write(txline); err != nil {
 			log.Fatalln("error writing record to file", err)
@@ -108,7 +108,7 @@ func CreateNewTransaction(userStruct []shared.Identity, newblock_number int, new
 
 	UpdateduserStruct, value, blocknumber, linenumber, sender := UpdateUserRemoveUnspentoutputs(selectedEntry.Id, randomIndexUnspentOutput, userStruct)
 	if shared.Myparameters.Debug {
-	fmt.Printf("going to use unspent output of block %d, line %d with value %d from sender %s\n\n", blocknumber, linenumber, value, sender)
+		fmt.Printf("going to use unspent output of block %d, line %d with value %d from sender %s\n\n", blocknumber, linenumber, value, sender)
 	}
 	userStruct = UpdateduserStruct
 	if shared.Myparameters.Verbose {
@@ -179,7 +179,7 @@ func CreateNewTransaction(userStruct []shared.Identity, newblock_number int, new
 		fmt.Printf("as output, created tx csv line: %+v\n", outputline)
 	}
 	if shared.Myparameters.Debug || shared.Myparameters.Verbose {
-	fmt.Printf("debug: tosign: '%s'\n, signer: '%s'\n, signature: '%s'\n\n\n", tosign, sender, signature)
+		fmt.Printf("debug: tosign: '%s'\n, signer: '%s'\n, signature: '%s'\n\n\n", tosign, sender, signature)
 	}
 	outputline = append(outputline, signature)
 	return userStruct, outputline
@@ -192,8 +192,8 @@ func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, i
 	linenumber := unspentoutputslice[UnspentOutputIndex].Linenumber
 	sender := identities[IdentityIndex].Name
 	/*
-	jstruct, _ := json.MarshalIndent(identities[IdentityIndex], "", "\t")
-		fmt.Printf("the unspent outputslice %s\n", jstruct)
+		jstruct, _ := json.MarshalIndent(identities[IdentityIndex], "", "\t")
+			fmt.Printf("the unspent outputslice %s\n", jstruct)
 	*/
 	if IdentityIndex < 0 || IdentityIndex >= len(identities) {
 		fmt.Println("Invalid IdentityIndex")
@@ -215,7 +215,7 @@ func UpdateUserRemoveUnspentoutputs(IdentityIndex int, UnspentOutputIndex int, i
 
 func UpdateUserAddUnspentoutputs(indexnumber int, blocknumber int, linenumber int, value int, identities []shared.Identity) []shared.Identity {
 	if shared.Myparameters.Debug {
-	fmt.Printf("adding new unspent output to user with index %d, coming from blocknumber %d, linunumber %d and value %d\n", indexnumber, blocknumber, linenumber, value)
+		fmt.Printf("adding new unspent output to user with index %d, coming from blocknumber %d, linunumber %d and value %d\n", indexnumber, blocknumber, linenumber, value)
 	}
 	updateslice := identities[indexnumber]
 	Unspentoutputslice := updateslice.Unspentoutputs

@@ -9,7 +9,7 @@ type Parameters struct {
 	Namelist       string
 	InputValue     int
 	NumberOfBlocks int
-	Debug 			bool
+	Debug          bool
 }
 
 var Myparameters Parameters
@@ -21,10 +21,11 @@ type Identity struct {
 	Unspentoutputs []UnspentOutput
 	Id             int
 }
+
 /*
 type Identity struct {
 	Name           string
-	PublicKey      *rsa.PublicKey  
+	PublicKey      *rsa.PublicKey
 	PrivateKey     *rsa.PrivateKey
 	Unspentoutputs []UnspentOutput
 	Id             int

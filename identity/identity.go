@@ -8,6 +8,7 @@ import (
 	"encoding/pem"
 	"os"
 )
+
 /*
 func GenerateIdentity(name string) *shared.Identity {
 	privKey, _ := rsa.GenerateKey(rand.Reader, 2048)
@@ -25,7 +26,7 @@ func GenerateIdentity(name string) (*shared.Identity, error) {
 	}
 
 	// Save private key to file
-	privKeyFile, err := os.Create("output/keys/" +name + "_private.pem")
+	privKeyFile, err := os.Create("output/keys/" + name + "_private.pem")
 	if err != nil {
 		return nil, err
 	}
