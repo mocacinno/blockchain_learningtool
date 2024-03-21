@@ -2,7 +2,7 @@
 
 ## tipjar
 
-bc1qhqgjj87wymwk7a6rj92tp3cxt3crt00a9qg6pa
+<a href="https://coindrop.to/mocacinno" target="_blank"><img src="https://coindrop.to/embed-button.png" style="border-radius: 10px; height: 57px !important;width: 229px !important;" alt="Coindrop.to me"></img></a>
 
 i basically accept any kind of tips, eventough i only posted a bitcoin address... If you want to support this project but want to tip some altcoin, or using a L2 sollution: just contact me on bitcointalk, or open an issue on this repo
 
